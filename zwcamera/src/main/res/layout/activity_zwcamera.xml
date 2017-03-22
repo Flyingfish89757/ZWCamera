@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_zwcamera"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.zwforandorid.zzl.zwcamera.ZWCameraActivity">
+<LinearLayout android:id="@+id/activity_zwcamera"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="com.zwforandorid.zzl.zwcamera.ZWCameraActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -15,10 +15,10 @@
             android:id="@+id/im_front"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@mipmap/ic_front"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="8dp"
+            android:src="@mipmap/ic_front"
             />
 
     </RelativeLayout>
@@ -28,19 +28,81 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         >
-        <android.opengl.GLSurfaceView
+        <com.zwforandorid.zzl.zwcamera.utils.MagicCameraView
             android:id="@+id/surfaceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            />
+        <ImageView
+            android:id="@+id/img_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
             />
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="120dp"
         >
+        <RelativeLayout
+            android:id="@+id/rl_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true">
+        <ImageView
+            android:id="@+id/take_photo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:src="@mipmap/ic_pa"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="照片"
+            android:textColor="#EABB00"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@id/take_photo"
+            android:layout_marginBottom="5dp"
+            />
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="选择"
+            android:textSize="25sp"
+            android:textColor="#fff"
+            android:visibility="invisible"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"/>
+        <TextView
+            android:id="@+id/beauty_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="美颜"
+            android:textSize="25sp"
+            android:textColor="#fff"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"/>
 
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="返回"
+            android:textSize="25sp"
+            android:textColor="#fff"
+            android:layout_marginLeft="40dp"
+            android:layout_alignBaseline="@+id/select"
+            android:layout_alignBottom="@+id/select"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"/>
     </RelativeLayout>
 
 </LinearLayout>
