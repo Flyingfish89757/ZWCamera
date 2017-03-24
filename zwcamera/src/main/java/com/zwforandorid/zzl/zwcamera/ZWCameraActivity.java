@@ -47,40 +47,49 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 public class ZWCameraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Uri mUri;
-    private ImageView take_photo;
-    private ImageView img_preview;
-    private TextView cancel;
-    private TextView select;
-    private MagicEngine magicEngine;
-    private ImageView im_front;
-    private TextView beautyLevel;
+    private ImageView m_take_photo;
+    private ImageView m_img_preview;
+    private TextView mCancel;
+    private TextView mSelect;
+    private MagicEngine mMagicEngine;
+    private ImageView m_im_front;
+    private TextView mBeautyLevel;
     private RelativeLayout rl_photo;
+    private File m_photo_file;
     public static final int CAMERA_SELECT = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zwcamera);
-
         MagicEngine.Builder builder = new MagicEngine.Builder();
-        magicEngine = builder
+        mMagicEngine = builder
                 .build((MagicCameraView) findViewById(R.id.surfaceView));
+        getTargetPath();
         initView();
         initCamera();
     }
 
     private void initView(){
-        im_front = (ImageView) findViewById(R.id.im_front);
-        im_front.setOnClickListener(this);
-        take_photo = (ImageView)findViewById(R.id.take_photo);
-        take_photo.setOnClickListener(this);
-        select = (TextView) findViewById(R.id.select);
-        select.setOnClickListener(this);
-        cancel = (TextView) findViewById(R.id.cancel);
-        cancel.setOnClickListener(this);
-        img_preview = (ImageView)findViewById(R.id.img_preview);
-        beautyLevel= (TextView) findViewById(R.id.beauty_level);
-        beautyLevel.setOnClickListener(this);
+        m_im_front = (ImageView) findViewById(R.id.im_front);
+        m_im_front.setOnClickListener(this);
+        m_take_photo = (ImageView)findViewById(R.id.take_photo);
+        m_take_photo.setOnClickListener(this);
+        mSelect = (TextView) findViewById(R.id.select);
+        mSelect.setOnClickListener(this);
+        mCancel = (TextView) findViewById(R.id.cancel);
+        mCancel.setOnClickListener(this);
+        m_img_preview = (ImageView)findViewById(R.id.img_preview);
+        mBeautyLevel= (TextView) findViewById(R.id.beauty_level);
+        mBeautyLevel.setOnClickListener(this);
         rl_photo = (RelativeLayout) findViewById(R.id.rl_photo);
+    }
+    private void getTargetPath(){
+        String mTarget = getIntent().getStringExtra("target_path");
+        if(mTarget.isEmpty() && !mTarget.equals("")){
+            m_photo_file = new File(mTarget);
+        }else {
+            m_photo_file = getOutputMediaFile();
+        }
     }
     @Override
     protected void onResume() {
@@ -102,39 +111,45 @@ public class ZWCameraActivity extends AppCompatActivity implements View.OnClickL
     private void SaveSuccess(String result){
         if(result != null){
             mUri = Uri.parse(result);
-            cancel.setText("重拍");
-            select.setVisibility(View.VISIBLE);
-            beautyLevel.setVisibility(View.GONE);
+            mCancel.setText("重拍");
+            mSelect.setVisibility(View.VISIBLE);
+            mBeautyLevel.setVisibility(View.GONE);
             rl_photo.setVisibility(View.GONE);
         }else {
             Toast.makeText(ZWCameraActivity.this,"图片获取失败",Toast.LENGTH_SHORT).show();
         }
     }
+    boolean b = false; // 拍照状态判断
     @Override
     public void onClick(View view) {
         int i = view.getId();
         if (i == R.id.take_photo) {
-            magicEngine.savePicture(getOutputMediaFile(), new SavePictureTask.OnPictureSaveListener() {
+            if(b){
+                return;
+            }
+            b = true;
+            mMagicEngine.savePicture(m_photo_file, new SavePictureTask.OnPictureSaveListener() {
                 @Override
                 public void onSaved(final String result) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
                             SaveSuccess(result);
+                            b = false;
                         }
                     }) ;
                 }
             }, getContentResolver());
 
         }else if(i == R.id.cancel){
-            if(cancel.getText().equals("返回")){
+            if(mCancel.getText().equals("返回")){
                 finish();
-            }else if (cancel.getText().equals("重拍")){
-                select.setVisibility(View.INVISIBLE);
-                cancel.setText("返回");
+            }else if (mCancel.getText().equals("重拍")){
+                mSelect.setVisibility(View.INVISIBLE);
+                mCancel.setText("返回");
                 CameraEngine.startPreview();
-                img_preview.setVisibility(View.GONE);
-                beautyLevel.setVisibility(View.VISIBLE);
+                m_img_preview.setVisibility(View.GONE);
+                mBeautyLevel.setVisibility(View.VISIBLE);
                 rl_photo.setVisibility(View.VISIBLE);
             }
         }else if(i == R.id.select){
@@ -143,14 +158,14 @@ public class ZWCameraActivity extends AppCompatActivity implements View.OnClickL
             setResult(RESULT_OK, intent);
             finish();
         }else if(i == R.id.im_front){
-            magicEngine.switchCamera();
+            mMagicEngine.switchCamera();
     }
         else if(i == R.id.beauty_level){
             new AlertDialog.Builder(ZWCameraActivity.this)
                     .setSingleChoiceItems(new String[]{"关闭", "1", "2", "3", "4", "5"}, MagicParams.beautyLevel,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    magicEngine.setBeautyLevel(which);
+                                    mMagicEngine.setBeautyLevel(which);
                                     dialog.dismiss();
                                 }
                             })
@@ -164,22 +179,16 @@ public class ZWCameraActivity extends AppCompatActivity implements View.OnClickL
         getWindowManager().getDefaultDisplay().getSize(screenSize);
         MagicCameraView cameraView = (MagicCameraView) findViewById(R.id.surfaceView);
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) cameraView.getLayoutParams();
+        //设置图片显示比例
         params.width = screenSize.x;
         params.height = screenSize.x * 4 / 3;
         cameraView.setLayoutParams(params);
     }
 
-    private static File getOutputMediaFile() {
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d("MyCameraApp", "failed to create directory");
-                return null;
-            }
-        }
+    private  File getOutputMediaFile() {
+        File mediaStorageDir = getExternalCacheDir();
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = "ZWCamera";
         File mediaFile;
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                     "IMG_" + timeStamp + ".jpg");

@@ -61,6 +61,8 @@ private ImageView test;
 
     private void startActivity(int id) {
         Intent xxx =  new Intent(this, ZWCameraActivity.class);
+        //target_path 照片保存目标路径
+        xxx.putExtra("target_path","");
         startActivityForResult( xxx, ZWCameraActivity.CAMERA_SELECT);
         }
 }

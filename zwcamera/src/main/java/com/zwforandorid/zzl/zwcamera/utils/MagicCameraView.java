@@ -177,7 +177,6 @@ public class MagicCameraView extends MagicBaseView {
                         GLES20.glViewport(0, 0, surfaceWidth, surfaceHeight);
                         if (photo != null)
                             savePictureTask.execute(photo);
-                        Uri uri = Uri.parse(MediaStore.Images.Media.insertImage(contentResolver, photo, null,null));
 
                     }
                 });
